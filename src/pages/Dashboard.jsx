@@ -14,6 +14,13 @@ const Dashboard = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Health indicators (mock data)
+  const [healthStats] = useState({
+    projectsSupported: 0,
+    communityImpact: 0,
+    contributorsCount: 0
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,29 +65,30 @@ const Dashboard = () => {
     fetchData();
   }, [isConnected, account, provider, signer]);
 
-  // Wallet not connected view
   if (!isConnected) {
     return (
       <div>
-        <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-8">Health Initiatives Dashboard</h1>
         <div className="bg-white rounded-lg shadow p-8 text-center">
           <div className="flex justify-center mb-4">
             <svg 
-              className="w-16 h-16 text-primary" 
-              fill="currentColor" 
-              viewBox="0 0 24 24"
+              className="w-16 h-16 text-green-500" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24" 
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <path d="M4 4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2h-2.5l-2.4-1.79A3 3 0 0016.73 2H7.27a3 3 0 00-1.37.21L3.5 4H4z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
           </div>
           <h2 className="text-2xl font-bold mb-2">Connect Your Wallet</h2>
           <p className="text-gray-600 mb-8">
-            Connect your Ethereum wallet to access the Web3 Genesis Platform.
-            <br />View your balance, send transactions, and stake tokens.
+            Connect your Ethereum wallet to access the MedChain Platform.
+            <br />Support health initiatives, track your impact, and contribute to global wellness.
           </p>
           <button 
             onClick={connectWallet}
-            className="bg-primary text-white px-6 py-3 rounded-md font-medium"
+            className="bg-green-500 text-white px-6 py-3 rounded-md font-medium"
           >
             Connect Wallet
           </button>
@@ -93,14 +101,14 @@ const Dashboard = () => {
   if (error) {
     return (
       <div>
-        <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-8">Health Initiatives Dashboard</h1>
         <div className="bg-white rounded-lg shadow p-8">
           <div className="text-red-500 mb-4">
             Error loading data: {error}
           </div>
           <button 
             onClick={() => window.location.reload()}
-            className="bg-primary text-white px-4 py-2 rounded-md"
+            className="bg-green-500 text-white px-4 py-2 rounded-md"
           >
             Retry
           </button>
@@ -111,18 +119,19 @@ const Dashboard = () => {
   
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
-      <div className="bg-white rounded-lg shadow p-8">
-        <h2 className="text-xl font-semibold mb-4">Your Wallet</h2>
+      <h1 className="text-3xl font-bold mb-8">Health Initiatives Dashboard</h1>
+      
+      <div className="bg-white rounded-lg shadow p-8 mb-8">
+        <h2 className="text-xl font-semibold mb-4">Your Digital Health Wallet</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="border rounded-lg p-4">
-            <h3 className="text-gray-500 text-sm mb-1">ETH Balance</h3>
+            <h3 className="text-gray-500 text-sm mb-1">Available ETH</h3>
             <p className="text-2xl font-medium">
               {isLoading ? "Loading..." : `${parseFloat(balance).toFixed(4)} ETH`}
             </p>
           </div>
           <div className="border rounded-lg p-4">
-            <h3 className="text-gray-500 text-sm mb-1">Staked ETH</h3>
+            <h3 className="text-gray-500 text-sm mb-1">Health Fund Contributions</h3>
             <p className="text-2xl font-medium">
               {isLoading ? "Loading..." : `${parseFloat(stakedInfo.amount).toFixed(4)} ETH`}
             </p>
@@ -130,25 +139,68 @@ const Dashboard = () => {
         </div>
         
         <div className="mt-8">
-          <h3 className="text-xl font-semibold mb-4">Recent Transactions</h3>
-          <div className="text-center py-8 text-gray-500">
-            <p>No transactions yet</p>
+          <h3 className="text-xl font-semibold mb-4">Your Health Impact</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-green-50 p-4 rounded-md text-center">
+              <p className="text-3xl font-bold text-green-600">{healthStats.projectsSupported}</p>
+              <p className="text-sm text-gray-600">Health Projects Supported</p>
+            </div>
+            <div className="bg-green-50 p-4 rounded-md text-center">
+              <p className="text-3xl font-bold text-green-600">{healthStats.communityImpact}</p>
+              <p className="text-sm text-gray-600">People Reached</p>
+            </div>
+            <div className="bg-green-50 p-4 rounded-md text-center">
+              <p className="text-3xl font-bold text-green-600">{healthStats.contributorsCount}</p>
+              <p className="text-sm text-gray-600">Fellow Contributors</p>
+            </div>
           </div>
         </div>
         
         <div className="flex gap-4 mt-6">
           <Link 
             to="/send"
-            className="bg-primary text-white px-4 py-2 rounded-md font-medium"
+            className="bg-green-500 text-white px-4 py-2 rounded-md font-medium"
           >
             Send ETH
           </Link>
           <Link 
             to="/staking"
-            className="bg-white text-primary border border-primary px-4 py-2 rounded-md font-medium"
+            className="bg-white text-green-500 border border-green-500 px-4 py-2 rounded-md font-medium"
           >
-            Stake ETH
+            Fund Health Initiatives
           </Link>
+        </div>
+      </div>
+      
+      <div className="bg-white rounded-lg shadow p-8">
+        <h2 className="text-xl font-semibold mb-4">Featured Health Initiatives</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="border rounded-lg p-4">
+            <h3 className="font-medium text-lg mb-2">Telemedicine Access Program</h3>
+            <p className="text-gray-600 mb-4">
+              Funding blockchain-based solutions to provide remote healthcare to underserved communities.
+            </p>
+            <div className="w-full bg-gray-200 h-2 rounded-full">
+              <div className="bg-green-500 h-2 rounded-full w-3/4"></div>
+            </div>
+            <div className="flex justify-between mt-2 text-sm">
+              <span>75% Funded</span>
+              <span>Target: 10 ETH</span>
+            </div>
+          </div>
+          <div className="border rounded-lg p-4">
+            <h3 className="font-medium text-lg mb-2">Medical Records on Blockchain</h3>
+            <p className="text-gray-600 mb-4">
+              Developing secure, patient-controlled health records using blockchain technology.
+            </p>
+            <div className="w-full bg-gray-200 h-2 rounded-full">
+              <div className="bg-green-500 h-2 rounded-full w-1/2"></div>
+            </div>
+            <div className="flex justify-between mt-2 text-sm">
+              <span>50% Funded</span>
+              <span>Target: 15 ETH</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
