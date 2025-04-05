@@ -1,10 +1,63 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useWeb3 } from '../hooks/useWeb3';
+import { ethers } from 'ethers';
+import { HEALTH_STAKING_ADDRESS } from '../utils/contractConfig';
+import HealthStakingABI from '../contracts/HealthStaking.json';
 
 const Dashboard = () => {
-  const { isConnected, connectWallet } = useWeb3();
-  
+  const { isConnected, connectWallet, account, provider, signer } = useWeb3();
+  const [balance, setBalance] = useState("0");
+  const [stakedInfo, setStakedInfo] = useState({
+    amount: "0",
+    isActive: false
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isConnected || !account || !provider) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        // Fetch ETH balance
+        const balanceWei = await provider.getBalance(account);
+        setBalance(ethers.formatEther(balanceWei));
+
+        // Fetch staked amount only if contract address is valid
+        if (HEALTH_STAKING_ADDRESS && HEALTH_STAKING_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+          try {
+            const contract = new ethers.Contract(
+              HEALTH_STAKING_ADDRESS,
+              HealthStakingABI.abi,
+              signer
+            );
+            
+            const stakeInfo = await contract.getStakeInfo(account);
+            setStakedInfo({
+              amount: ethers.formatEther(stakeInfo[0]),
+              isActive: stakeInfo[3]
+            });
+          } catch (contractErr) {
+            console.error("Error fetching staking info:", contractErr);
+            // Continue even if contract interaction fails
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isConnected, account, provider, signer]);
+
   // Wallet not connected view
   if (!isConnected) {
     return (
@@ -36,8 +89,26 @@ const Dashboard = () => {
     );
   }
   
-  // Connected wallet view would show balance and transaction history
-  // This will be implemented when we have contract integration
+  // Error state
+  if (error) {
+    return (
+      <div>
+        <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+        <div className="bg-white rounded-lg shadow p-8">
+          <div className="text-red-500 mb-4">
+            Error loading data: {error}
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-primary text-white px-4 py-2 rounded-md"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
@@ -46,11 +117,15 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="border rounded-lg p-4">
             <h3 className="text-gray-500 text-sm mb-1">ETH Balance</h3>
-            <p className="text-2xl font-medium">Loading...</p>
+            <p className="text-2xl font-medium">
+              {isLoading ? "Loading..." : `${parseFloat(balance).toFixed(4)} ETH`}
+            </p>
           </div>
           <div className="border rounded-lg p-4">
             <h3 className="text-gray-500 text-sm mb-1">Staked ETH</h3>
-            <p className="text-2xl font-medium">Loading...</p>
+            <p className="text-2xl font-medium">
+              {isLoading ? "Loading..." : `${parseFloat(stakedInfo.amount).toFixed(4)} ETH`}
+            </p>
           </div>
         </div>
         
