@@ -29,16 +29,22 @@ const Header = () => {
               Dashboard
             </Link>
             <Link 
+              to="/doctors" 
+              className={`text-gray-700 hover:text-green-500 ${location.pathname === '/doctors' || location.pathname.startsWith('/book/') ? 'font-medium' : ''}`}
+            >
+              Find Doctors
+            </Link>
+            <Link 
+              to="/appointments" 
+              className={`text-gray-700 hover:text-green-500 ${location.pathname === '/appointments' ? 'font-medium' : ''}`}
+            >
+              My Appointments
+            </Link>
+            <Link 
               to="/send" 
               className={`text-gray-700 hover:text-green-500 ${location.pathname === '/send' ? 'font-medium' : ''}`}
             >
-              Send
-            </Link>
-            <Link 
-              to="/staking" 
-              className={`text-gray-700 hover:text-green-500 ${location.pathname === '/staking' ? 'font-medium' : ''}`}
-            >
-              Health Funding
+              Send ETH
             </Link>
           </nav>
         </div>
