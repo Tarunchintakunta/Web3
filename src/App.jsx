@@ -4,6 +4,9 @@ import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
 import Send from './pages/Send';
 import Staking from './pages/Staking';
+import Doctors from './pages/Doctors';
+import BookAppointment from './pages/BookAppointment';
+import Appointments from './pages/Appointments';
 import { Web3Provider } from './contexts/Web3Context';
 
 function App() {
@@ -15,6 +18,9 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/send" element={<Send />} />
             <Route path="/staking" element={<Staking />} />
+            <Route path="/doctors" element={<Doctors />} />
+            <Route path="/book/:doctorId" element={<BookAppointment />} />
+            <Route path="/appointments" element={<Appointments />} />
           </Routes>
         </Layout>
       </Router>
