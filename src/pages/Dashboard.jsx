@@ -15,11 +15,11 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Health indicators (mock data)
+  // Health indicators (mock data for better UI)
   const [healthStats] = useState({
-    projectsSupported: 0,
-    communityImpact: 0,
-    contributorsCount: 0
+    projectsSupported: 2,
+    communityImpact: 24,
+    contributorsCount: 8
   });
 
   useEffect(() => {
@@ -31,20 +31,37 @@ const Dashboard = () => {
 
       try {
         setIsLoading(true);
-        // Fetch ETH balance
+        console.log("Connected account:", account);
+        
+        // Get network information
+        const network = await provider.getNetwork();
+        console.log("Current network:", network.name, "Chain ID:", network.chainId);
+        
+        // Fetch ETH balance with explicit debugging
+        console.log("Fetching balance for account:", account);
         const balanceWei = await provider.getBalance(account);
-        setBalance(ethers.formatEther(balanceWei));
+        console.log("Raw balance (wei):", balanceWei.toString());
+        
+        const balanceEth = ethers.formatEther(balanceWei);
+        console.log("Formatted balance (ETH):", balanceEth);
+        
+        setBalance(balanceEth);
 
         // Fetch staked amount only if contract address is valid
         if (HEALTH_STAKING_ADDRESS && HEALTH_STAKING_ADDRESS !== "0x0000000000000000000000000000000000000000") {
           try {
+            console.log("Attempting to connect to contract at:", HEALTH_STAKING_ADDRESS);
+            
             const contract = new ethers.Contract(
               HEALTH_STAKING_ADDRESS,
               HealthStakingABI.abi,
               signer
             );
             
+            console.log("Contract connected, fetching stake info");
             const stakeInfo = await contract.getStakeInfo(account);
+            console.log("Stake info returned:", stakeInfo);
+            
             setStakedInfo({
               amount: ethers.formatEther(stakeInfo[0]),
               isActive: stakeInfo[3]
@@ -53,6 +70,8 @@ const Dashboard = () => {
             console.error("Error fetching staking info:", contractErr);
             // Continue even if contract interaction fails
           }
+        } else {
+          console.log("No valid contract address found, skipping staking info fetch");
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -78,7 +97,7 @@ const Dashboard = () => {
               viewBox="0 0 24 24" 
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
           </div>
           <h2 className="text-2xl font-bold mb-2">Connect Your Wallet</h2>
@@ -128,6 +147,9 @@ const Dashboard = () => {
             <h3 className="text-gray-500 text-sm mb-1">Available ETH</h3>
             <p className="text-2xl font-medium">
               {isLoading ? "Loading..." : `${parseFloat(balance).toFixed(4)} ETH`}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {isConnected && account ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}` : ''}
             </p>
           </div>
           <div className="border rounded-lg p-4">
