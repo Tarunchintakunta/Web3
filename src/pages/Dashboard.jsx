@@ -6,7 +6,7 @@ import { HEALTH_STAKING_ADDRESS } from '../utils/contractConfig';
 import HealthStakingABI from '../contracts/HealthStaking.json';
 
 const Dashboard = () => {
-  const { isConnected, connectWallet, account, provider, signer } = useWeb3();
+  const { isConnected, connectWallet, account, provider, signer, networkName } = useWeb3();
   const [balance, setBalance] = useState("0");
   const [stakedInfo, setStakedInfo] = useState({
     amount: "0",
@@ -144,18 +144,21 @@ const Dashboard = () => {
         <h2 className="text-xl font-semibold mb-4">Your Digital Health Wallet</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="border rounded-lg p-4">
-            <h3 className="text-gray-500 text-sm mb-1">Available ETH</h3>
+            <h3 className="text-gray-500 text-sm mb-1">Available Sepolia ETH</h3>
             <p className="text-2xl font-medium">
-              {isLoading ? "Loading..." : `${parseFloat(balance).toFixed(4)} ETH`}
+              {isLoading ? "Loading..." : `${parseFloat(balance).toFixed(4)} SepoliaETH`}
             </p>
             <p className="text-xs text-gray-500 mt-1">
               {isConnected && account ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}` : ''}
             </p>
+            <div className="bg-yellow-50 text-yellow-700 text-xs p-1 mt-2 rounded">
+              Test network funds - no real value
+            </div>
           </div>
           <div className="border rounded-lg p-4">
             <h3 className="text-gray-500 text-sm mb-1">Health Fund Contributions</h3>
             <p className="text-2xl font-medium">
-              {isLoading ? "Loading..." : `${parseFloat(stakedInfo.amount).toFixed(4)} ETH`}
+              {isLoading ? "Loading..." : `${parseFloat(stakedInfo.amount).toFixed(4)} SepoliaETH`}
             </p>
           </div>
         </div>
@@ -183,7 +186,7 @@ const Dashboard = () => {
             to="/send"
             className="bg-green-500 text-white px-4 py-2 rounded-md font-medium"
           >
-            Send ETH
+            Send SepoliaETH
           </Link>
           <Link 
             to="/staking"
@@ -207,7 +210,7 @@ const Dashboard = () => {
             </div>
             <div className="flex justify-between mt-2 text-sm">
               <span>75% Funded</span>
-              <span>Target: 10 ETH</span>
+              <span>Target: 10 SepoliaETH</span>
             </div>
           </div>
           <div className="border rounded-lg p-4">
@@ -220,7 +223,7 @@ const Dashboard = () => {
             </div>
             <div className="flex justify-between mt-2 text-sm">
               <span>50% Funded</span>
-              <span>Target: 15 ETH</span>
+              <span>Target: 15 SepoliaETH</span>
             </div>
           </div>
         </div>
