@@ -50,7 +50,7 @@ const Send = () => {
         value: amountWei
       });
       
-      setSuccess(`Transaction sent! Purpose: ${purpose}. Hash: ${tx.hash}`);
+      setSuccess(`Transaction sent Successfully! Purpose: ${purpose}. Hash: ${tx.hash}`);
       setRecipient('');
       setAmount('');
       setPurpose('Medical Equipment Donation');
