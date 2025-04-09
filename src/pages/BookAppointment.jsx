@@ -4,11 +4,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useWeb3 } from '../hooks/useWeb3';
 import { useDoctorContract } from '../hooks/useDoctorContract';
 import { ethers } from 'ethers';
+import TransactionNotification from '../components/TransactionNotification';
 
 const BookAppointment = () => {
   const { doctorId } = useParams();
   const navigate = useNavigate();
-  const { isConnected, connectWallet, signer } = useWeb3(); // Added signer here
+  const { isConnected, connectWallet, signer, chainId } = useWeb3(); // Added signer and chainId
   const { bookAppointment } = useDoctorContract();
   
   // Added fixed payment recipient address
@@ -22,6 +23,7 @@ const BookAppointment = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [showNotification, setShowNotification] = useState(false); // Added notification state
+  const [transactionHash, setTransactionHash] = useState(null); // Added transaction hash state
   
   // Mock doctors data
   const mockDoctors = [
@@ -142,6 +144,9 @@ const BookAppointment = () => {
       
       console.log("Payment transaction:", paymentTx);
       
+      // Set transaction hash for the notification
+      setTransactionHash(paymentTx.hash);
+      
       // Wait for payment confirmation
       await paymentTx.wait();
       
@@ -244,20 +249,13 @@ const BookAppointment = () => {
   return (
     <div>
       {/* Transaction Notification */}
-      {showNotification && (
-        <div className="fixed top-5 right-5 bg-green-500 text-white p-4 rounded-md shadow-lg z-50 flex items-center">
-          <svg 
-            className="w-6 h-6 mr-2" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          <span>Transaction successful! Redirecting to appointments...</span>
-        </div>
-      )}
+      <TransactionNotification 
+        show={showNotification}
+        message="Transaction successful! Redirecting to appointments..."
+        onHide={() => setShowNotification(false)}
+        txHash={transactionHash}
+        chainId={chainId} // Get this from useWeb3
+      />
       
       <div className="flex items-center mb-8">
         <button 
