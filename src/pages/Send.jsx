@@ -67,7 +67,7 @@ const Send = () => {
         <h1 className="text-3xl font-bold mb-8">Health Payments</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-2">Send ETH for Health Services</h2>
+            <h2 className="text-xl font-bold mb-2">Send SepoliaETH for Health Services</h2>
             <p className="text-gray-600 mb-6">Make healthcare payments or donations securely on the blockchain</p>
             <div className="text-center py-8">
               <p className="mb-4">Connect your wallet to make health payments</p>
@@ -81,7 +81,7 @@ const Send = () => {
           </div>
           
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-2">Receive Health Payments</h2>
+            <h2 className="text-xl font-bold mb-2">Receive SepoliaETH</h2>
             <p className="text-gray-600 mb-6">Share your address to receive payments for health services</p>
             <div className="text-center py-8">
               <p className="mb-4">Connect your wallet to receive payments</p>
@@ -103,7 +103,7 @@ const Send = () => {
       <h1 className="text-3xl font-bold mb-8">Health Payments</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-2">Send ETH for Health Services</h2>
+          <h2 className="text-xl font-bold mb-2">Send SepoliaETH for Health Services</h2>
           <p className="text-gray-600 mb-6">Make healthcare payments or donations securely on the blockchain</p>
           
           {error && (
@@ -136,7 +136,7 @@ const Send = () => {
             
             <div className="mb-4">
               <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-                Amount (ETH)
+                Amount (SepoliaETH)
               </label>
               <input
                 type="number"
@@ -149,6 +149,9 @@ const Send = () => {
                 min="0"
                 required
               />
+              <div className="text-xs text-yellow-600 mt-1">
+                Using Sepolia testnet - no real value
+              </div>
             </div>
             
             <div className="mb-6">
@@ -179,7 +182,7 @@ const Send = () => {
         </div>
         
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-2">Receive Health Payments</h2>
+          <h2 className="text-xl font-bold mb-2">Receive SepoliaETH</h2>
           <p className="text-gray-600 mb-6">Share your address to receive payments for health services</p>
           
           <div className="bg-gray-50 p-4 rounded-md mb-4 break-all">
