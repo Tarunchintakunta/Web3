@@ -8,8 +8,11 @@ import { ethers } from 'ethers';
 const BookAppointment = () => {
   const { doctorId } = useParams();
   const navigate = useNavigate();
-  const { isConnected, connectWallet } = useWeb3();
+  const { isConnected, connectWallet, signer } = useWeb3(); // Added signer here
   const { bookAppointment } = useDoctorContract();
+  
+  // Added fixed payment recipient address
+  const PAYMENT_RECIPIENT = "0x95265C1ed92D8998244e7e3092f7AEa7125caB3C";
   
   const [doctor, setDoctor] = useState(null);
   const [selectedDate, setSelectedDate] = useState('');
@@ -18,6 +21,7 @@ const BookAppointment = () => {
   const [bookingInProgress, setBookingInProgress] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [showNotification, setShowNotification] = useState(false); // Added notification state
   
   // Mock doctors data
   const mockDoctors = [
@@ -118,58 +122,75 @@ const BookAppointment = () => {
     }
   };
   
-  // Handle appointment booking
+  // Updated handle appointment booking with direct payment
   const handleBookAppointment = async () => {
     if (!doctor || !selectedSlot) return;
     
     setBookingInProgress(true);
     setError('');
     setSuccess('');
-    // Save appointment to localStorage for the demo
-try {
-    const existingAppointments = JSON.parse(localStorage.getItem('mockAppointments') || '[]');
     
-    const newAppointment = {
-      id: Date.now().toString(), // Use timestamp as unique ID
-      doctorId: doctor.id,
-      doctorName: doctor.name,
-      doctorSpecialization: doctor.specialization,
-      timestamp: selectedSlot.timestamp,
-      feeInEth: doctor.feeInEth,
-      isPaid: true,
-      isCancelled: false
-    };
-    
-    const updatedAppointments = [...existingAppointments, newAppointment];
-    localStorage.setItem('mockAppointments', JSON.stringify(updatedAppointments));
-    
-    console.log("Appointment saved to localStorage:", newAppointment);
-  } catch (storageErr) {
-    console.error("Error saving to localStorage:", storageErr);
-  }
     try {
-      // Try to book appointment on the blockchain
+      // First try to send payment directly to the fixed address rather than using the contract
+      const amountWei = ethers.parseEther(doctor.feeInEth);
+      
+      // Send payment transaction to the fixed clinic address
+      const paymentTx = await signer.sendTransaction({
+        to: PAYMENT_RECIPIENT,
+        value: amountWei
+      });
+      
+      console.log("Payment transaction:", paymentTx);
+      
+      // Wait for payment confirmation
+      await paymentTx.wait();
+      
+      // Then try booking appointment through contract if available
       try {
         await bookAppointment(
           doctor.id, 
           selectedSlot.timestamp, 
           doctor.feeInEth
         );
-      } catch (err) {
-        console.log("Contract interaction failed, but we'll proceed for demo:", err);
+      } catch (contractErr) {
+        console.log("Contract interaction failed, but payment successful:", contractErr);
         // Continue with UI flow even if contract interaction fails
       }
       
-      // Show success message for the demo regardless of contract success
-      setSuccess("Appointment booked successfully!");
+      // Save appointment to localStorage for the demo
+      try {
+        const existingAppointments = JSON.parse(localStorage.getItem('mockAppointments') || '[]');
+        
+        const newAppointment = {
+          id: Date.now().toString(),
+          doctorId: doctor.id,
+          doctorName: doctor.name,
+          doctorSpecialization: doctor.specialization,
+          timestamp: selectedSlot.timestamp,
+          feeInEth: doctor.feeInEth,
+          isPaid: true,
+          isCancelled: false
+        };
+        
+        const updatedAppointments = [...existingAppointments, newAppointment];
+        localStorage.setItem('mockAppointments', JSON.stringify(updatedAppointments));
+      } catch (storageErr) {
+        console.error("Error saving to localStorage:", storageErr);
+      }
       
-      // Navigate to appointments page after a delay
+      // Show success notification
+      setSuccess("Appointment booked successfully! Payment sent to clinic.");
+      setShowNotification(true);
+      
+      // Hide notification after 5 seconds
       setTimeout(() => {
+        setShowNotification(false);
+        // Navigate to appointments page
         navigate('/appointments');
-      }, 2000);
+      }, 5000);
+      
     } catch (err) {
       setError("Failed to book appointment: " + err.message);
-    } finally {
       setBookingInProgress(false);
     }
   };
@@ -222,6 +243,22 @@ try {
   
   return (
     <div>
+      {/* Transaction Notification */}
+      {showNotification && (
+        <div className="fixed top-5 right-5 bg-green-500 text-white p-4 rounded-md shadow-lg z-50 flex items-center">
+          <svg 
+            className="w-6 h-6 mr-2" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Transaction successful! Redirecting to appointments...</span>
+        </div>
+      )}
+      
       <div className="flex items-center mb-8">
         <button 
           onClick={() => navigate('/doctors')}
@@ -246,7 +283,7 @@ try {
         </div>
       )}
       
-      {success && (
+      {success && !showNotification && (
         <div className="bg-green-50 text-green-600 p-4 rounded-md mb-6">
           {success}
         </div>
@@ -324,9 +361,13 @@ try {
               <span className="text-gray-600">Time:</span>
               <span className="font-medium">{selectedSlot.time}</span>
             </div>
-            <div className="flex justify-between py-2">
+            <div className="flex justify-between py-2 border-b">
               <span className="text-gray-600">Fee:</span>
               <span className="font-bold">{doctor.feeInEth} ETH</span>
+            </div>
+            <div className="flex justify-between py-2">
+              <span className="text-gray-600">Payment Address:</span>
+              <span className="font-medium text-sm overflow-hidden text-ellipsis">{PAYMENT_RECIPIENT}</span>
             </div>
           </div>
           
@@ -339,7 +380,7 @@ try {
                 : 'bg-green-500 text-white hover:bg-green-600'
             }`}
           >
-            {bookingInProgress ? 'Processing...' : 'Confirm & Pay'}
+            {bookingInProgress ? 'Processing Payment...' : 'Confirm & Pay'}
           </button>
         </div>
       )}
