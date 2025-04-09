@@ -11,6 +11,6 @@ module.exports = {
     }
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY
+    apiKey: process.env.REACT_APP_ETHERSCAN_API_KEY
   }
 };
