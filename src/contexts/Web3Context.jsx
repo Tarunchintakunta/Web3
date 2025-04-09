@@ -9,6 +9,7 @@ export const Web3Provider = ({ children }) => {
   const [signer, setSigner] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [chainId, setChainId] = useState(null);
+  const [networkName, setNetworkName] = useState("");
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -28,6 +29,7 @@ export const Web3Provider = ({ children }) => {
         
         const network = await provider.getNetwork();
         setChainId(network.chainId);
+        setNetworkName(network.name);
         
         return true;
       } catch (error) {
@@ -46,6 +48,7 @@ export const Web3Provider = ({ children }) => {
     setSigner(null);
     setIsConnected(false);
     setChainId(null);
+    setNetworkName("");
   };
 
   // Listen for account changes
@@ -59,7 +62,16 @@ export const Web3Provider = ({ children }) => {
         }
       });
 
-      window.ethereum.on('chainChanged', () => {
+      window.ethereum.on('chainChanged', async () => {
+        if (provider) {
+          try {
+            const network = await provider.getNetwork();
+            setChainId(network.chainId);
+            setNetworkName(network.name);
+          } catch (err) {
+            console.error("Error updating network info:", err);
+          }
+        }
         window.location.reload();
       });
 
@@ -68,7 +80,7 @@ export const Web3Provider = ({ children }) => {
         window.ethereum.removeAllListeners('chainChanged');
       };
     }
-  }, []);
+  }, [provider]);
 
   return (
     <Web3Context.Provider 
@@ -78,6 +90,7 @@ export const Web3Provider = ({ children }) => {
         signer,
         isConnected, 
         chainId,
+        networkName,
         connectWallet, 
         disconnectWallet 
       }}
